@@ -14,6 +14,7 @@ app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -29,17 +30,21 @@ app.use((req, res, next) => {
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
 mongoose
-  .connect("mongodb://localhost/aws-cooke")
+  .connect(
+    "mongodb://localhost/aws-cooke",
+    { useNewUrlParser: true }
+  )
   .then(result => {
     User.findOne().then(user => {
       if (!user) {
         const user = new User({
-          name: "Max",
-          email: "max@test.com",
+          name: "nick",
+          email: "undefined@test.com",
           cart: {
             items: []
           }
@@ -47,7 +52,10 @@ mongoose
         user.save();
       }
     });
-    app.listen(8080);
+
+    const port = process.env.port || 8080;
+    app.listen(port);
+    console.log(`app listening on port ${port}`);
   })
   .catch(err => {
     console.log(err);
